@@ -12,7 +12,13 @@ import SwiftData
 struct ChuYaApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            BabyProfile.self,
+            GrowthRecord.self,
+            FeedingRecord.self,
+            SleepRecord.self,
+            StoolRecord.self,
+            QAHistory.self,
+            MemoryCard.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +31,7 @@ struct ChuYaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRootView()
         }
         .modelContainer(sharedModelContainer)
     }

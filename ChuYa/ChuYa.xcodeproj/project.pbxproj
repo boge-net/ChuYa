@@ -256,6 +256,9 @@
 				DEVELOPMENT_TEAM = QGA9CV8LRT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "初芽";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "用于将宝宝成长卡片保存到相册。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "用于选择宝宝照片制作成长卡片。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +291,9 @@
 				DEVELOPMENT_TEAM = QGA9CV8LRT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "初芽";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "用于将宝宝成长卡片保存到相册。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "用于选择宝宝照片制作成长卡片。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
