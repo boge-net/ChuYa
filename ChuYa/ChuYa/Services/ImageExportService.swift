@@ -11,9 +11,9 @@ import UIKit
 
 @MainActor
 enum ImageExportService {
-    static func renderImage<Content: View>(from view: Content, size: CGSize) -> UIImage {
+    static func renderImage<Content: View>(from view: Content, size: CGSize, scale: CGFloat) -> UIImage {
         let renderer = ImageRenderer(content: view.frame(width: size.width, height: size.height))
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = scale
         return renderer.uiImage ?? UIImage()
     }
 

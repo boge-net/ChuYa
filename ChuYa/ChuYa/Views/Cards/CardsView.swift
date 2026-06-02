@@ -12,6 +12,7 @@ import UIKit
 
 struct CardsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.displayScale) private var displayScale
 
     @Query(sort: \BabyProfile.createdAt) private var babyProfiles: [BabyProfile]
     @Query(sort: \MemoryCard.createdAt, order: .reverse) private var memoryCards: [MemoryCard]
@@ -245,7 +246,11 @@ struct CardsView: View {
             subtitle: subtitle,
             image: selectedImage
         )
-        let image = ImageExportService.renderImage(from: exportView, size: CGSize(width: 900, height: 1250))
+        let image = ImageExportService.renderImage(
+            from: exportView,
+            size: CGSize(width: 900, height: 1250),
+            scale: displayScale
+        )
 
         do {
             try await ImageExportService.saveToPhotoLibrary(image)

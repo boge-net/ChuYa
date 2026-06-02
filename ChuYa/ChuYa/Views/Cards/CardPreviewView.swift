@@ -64,16 +64,19 @@ struct CardPreviewView: View {
     @ViewBuilder
     private var photoArea: some View {
         if let image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .aspectRatio(1, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 24))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(.white.opacity(0.78), lineWidth: 1)
-                }
+            GeometryReader { proxy in
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width, height: proxy.size.width)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(.white.opacity(0.78), lineWidth: 1)
+                    }
+            }
+            .aspectRatio(1, contentMode: .fit)
         } else {
             RoundedRectangle(cornerRadius: 24)
                 .fill(.white.opacity(0.52))
@@ -102,4 +105,3 @@ struct CardPreviewView: View {
     .padding()
     .background(AppTheme.Colors.background)
 }
-
