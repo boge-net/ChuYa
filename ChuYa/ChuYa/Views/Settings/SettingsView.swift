@@ -246,6 +246,9 @@ private struct EditBabyProfileView: View {
             ZStack {
                 AppTheme.Colors.background
                     .ignoresSafeArea()
+                    .onTapGesture {
+                        UIApplication.shared.dismissKeyboard()
+                    }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
@@ -280,18 +283,21 @@ private struct EditBabyProfileView: View {
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.large))
                     .padding(AppTheme.Spacing.large)
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .navigationTitle("编辑宝宝资料")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
+                        UIApplication.shared.dismissKeyboard()
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") {
+                        UIApplication.shared.dismissKeyboard()
                         save()
                     }
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

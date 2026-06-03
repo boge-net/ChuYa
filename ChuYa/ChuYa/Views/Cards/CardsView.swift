@@ -22,11 +22,19 @@ struct CardsView: View {
     @State private var selectedImage: UIImage?
     @State private var title = "满月快乐"
     @State private var subtitle = "每天一点，陪宝宝长大。"
+    @State private var previewTitle = "满月快乐"
+    @State private var previewSubtitle = "每天一点，陪宝宝长大。"
+    @State private var previewUpdateTask: Task<Void, Never>?
     @State private var exportMessage: String?
     @State private var isSaving = false
+    @FocusState private var focusedField: CardFocusedField?
 
     private var baby: BabyProfile? {
         babyProfiles.first
+    }
+
+    private var isEditingText: Bool {
+        focusedField != nil
     }
 
     var body: some View {
@@ -34,6 +42,9 @@ struct CardsView: View {
             ZStack {
                 AppTheme.Colors.background
                     .ignoresSafeArea()
+                    .onTapGesture {
+                        dismissKeyboard()
+                    }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
@@ -54,11 +65,15 @@ struct CardsView: View {
                     }
                     .padding(AppTheme.Spacing.large)
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .onChange(of: selectedPhotoItem) { _, newItem in
                 Task {
                     await loadImage(from: newItem)
                 }
+            }
+            .onDisappear {
+                previewUpdateTask?.cancel()
             }
         }
     }
@@ -83,9 +98,7 @@ struct CardsView: View {
 
             ForEach(CardTemplate.all) { template in
                 Button {
-                    selectedTemplate = template
-                    title = defaultTitle(for: template)
-                    subtitle = defaultSubtitle(for: template)
+                    applyTemplate(template)
                 } label: {
                     CardTemplateView(template: template, isSelected: selectedTemplate.id == template.id)
                 }
@@ -96,9 +109,28 @@ struct CardsView: View {
 
     private var editorSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
-            Text("编辑内容")
-                .font(AppTheme.Typography.sectionTitle)
-                .foregroundStyle(AppTheme.Colors.textPrimary)
+            HStack {
+                Text("编辑内容")
+                    .font(AppTheme.Typography.sectionTitle)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                Spacer()
+
+                Button {
+                    dismissKeyboard()
+                } label: {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(AppTheme.Colors.peach)
+                        .frame(width: 36, height: 36)
+                        .background(AppTheme.Colors.peachSoft.opacity(0.26))
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Radius.small))
+                }
+                .buttonStyle(.plain)
+                .opacity(isEditingText ? 1 : 0)
+                .disabled(!isEditingText)
+                .accessibilityLabel("收起键盘")
+            }
 
             PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
                 HStack {
@@ -119,6 +151,14 @@ struct CardsView: View {
                     .font(AppTheme.Typography.caption)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
                 TextField("例如：满月快乐", text: $title)
+                    .focused($focusedField, equals: .title)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focusedField = .subtitle
+                    }
+                    .onChange(of: title) {
+                        schedulePreviewUpdate()
+                    }
                     .cardsTextFieldStyle()
             }
 
@@ -127,7 +167,11 @@ struct CardsView: View {
                     .font(AppTheme.Typography.caption)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
                 TextField("例如：每天一点，陪宝宝长大。", text: $subtitle, axis: .vertical)
+                    .focused($focusedField, equals: .subtitle)
                     .lineLimit(1...3)
+                    .onChange(of: subtitle) {
+                        schedulePreviewUpdate()
+                    }
                     .cardsTextFieldStyle()
             }
         }
@@ -145,15 +189,20 @@ struct CardsView: View {
             CardPreviewView(
                 template: selectedTemplate,
                 babyName: baby?.name ?? "宝宝",
-                title: title,
-                subtitle: subtitle,
+                title: previewTitle,
+                subtitle: previewSubtitle,
                 image: selectedImage
             )
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissKeyboard()
         }
     }
 
     private var saveButton: some View {
         Button {
+            dismissKeyboard()
             Task {
                 await saveCard()
             }
@@ -209,6 +258,10 @@ struct CardsView: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissKeyboard()
+        }
     }
 
     private var savedCards: [MemoryCard] {
@@ -230,6 +283,32 @@ struct CardsView: View {
             }
         } catch {
             exportMessage = "照片读取失败，请重新选择。"
+        }
+    }
+
+    private func applyTemplate(_ template: CardTemplate) {
+        dismissKeyboard()
+        selectedTemplate = template
+
+        let nextTitle = defaultTitle(for: template)
+        let nextSubtitle = defaultSubtitle(for: template)
+        title = nextTitle
+        subtitle = nextSubtitle
+        previewTitle = nextTitle
+        previewSubtitle = nextSubtitle
+        previewUpdateTask?.cancel()
+    }
+
+    private func schedulePreviewUpdate() {
+        previewUpdateTask?.cancel()
+
+        let nextTitle = title
+        let nextSubtitle = subtitle
+        previewUpdateTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 90_000_000)
+            guard !Task.isCancelled else { return }
+            previewTitle = nextTitle
+            previewSubtitle = nextSubtitle
         }
     }
 
@@ -284,6 +363,16 @@ struct CardsView: View {
     private func defaultSubtitle(for template: CardTemplate) -> String {
         baby.map { "\($0.name) · \(template.caption)" } ?? template.caption
     }
+
+    private func dismissKeyboard() {
+        focusedField = nil
+        UIApplication.shared.dismissKeyboard()
+    }
+}
+
+private enum CardFocusedField: Hashable {
+    case title
+    case subtitle
 }
 
 #Preview {

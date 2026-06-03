@@ -35,6 +35,9 @@ struct AddRecordView: View {
             ZStack {
                 AppTheme.Colors.background
                     .ignoresSafeArea()
+                    .onTapGesture {
+                        UIApplication.shared.dismissKeyboard()
+                    }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
@@ -49,18 +52,21 @@ struct AddRecordView: View {
                     }
                     .padding(AppTheme.Spacing.large)
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .navigationTitle("添加记录")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
+                        UIApplication.shared.dismissKeyboard()
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") {
+                        UIApplication.shared.dismissKeyboard()
                         saveRecord()
                     }
                     .disabled(!canSave)

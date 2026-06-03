@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -31,6 +32,9 @@ struct OnboardingView: View {
             ZStack {
                 AppTheme.Colors.background
                     .ignoresSafeArea()
+                    .onTapGesture {
+                        UIApplication.shared.dismissKeyboard()
+                    }
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
@@ -40,6 +44,7 @@ struct OnboardingView: View {
                     }
                     .padding(AppTheme.Spacing.large)
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -124,6 +129,7 @@ struct OnboardingView: View {
 
     private var saveButton: some View {
         Button {
+            UIApplication.shared.dismissKeyboard()
             saveBabyProfile()
         } label: {
             Text("保存并进入初芽")
